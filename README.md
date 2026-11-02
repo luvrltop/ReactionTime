@@ -12,9 +12,9 @@ Wait for the signal, then press OK as fast as you can.
 
 ## Controls
 | Button | Action |
-|---|---|
+| --- | --- |
 | OK | Start / react / play again |
-| Left | Reset stats (in start screen(aka. menu)) |
+| Left | Reset stats (in start screen) |
 | Back | Return to start screen / exit app |
 
 ## Stats
