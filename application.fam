@@ -1,0 +1,13 @@
+App(
+    appid="reaction_time",
+    name="Reaction Time",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="reaction_time_app",
+    requires=["gui", "notification", "storage"],
+    stack_size=4 * 1024,
+    fap_icon="reaction_time_app_icon.png",
+    fap_category="Games",
+    fap_version="1.0",
+    fap_author = "luvrltop",
+    fap_description="App to test user response time",
+)
