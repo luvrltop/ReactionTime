@@ -30,3 +30,10 @@ Requires [ufbt](https://github.com/flipperdevices/flipperzero-ufbt).
 
 ## License
 MIT
+
+## Screenshots
+<img width="512" height="256" alt="Screenshot-20261103-001653" src="https://github.com/user-attachments/assets/9b527ef4-ea1a-456e-9395-4753ee9d00c5" />
+<img width="512" height="256" alt="Screenshot-20261103-001702" src="https://github.com/user-attachments/assets/ea172394-d0b2-41d0-8af1-d7508fcaa694" />
+<img width="512" height="256" alt="Screenshot-20261103-001708" src="https://github.com/user-attachments/assets/68445a4f-d978-4abf-8870-45a94e5e7e30" />
+<img width="512" height="256" alt="Screenshot-20261103-001723" src="https://github.com/user-attachments/assets/b9fa9884-1e2e-46b3-b6fc-d53a50315f2a" />
+
