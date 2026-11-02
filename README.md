@@ -20,7 +20,10 @@ Wait for the signal, then press OK as fast as you can.
 ## Stats
 Your results are saved to `apps_data/reaction_time/stats.txt` on the SD card. The file stores the total of all your reaction times and the number of rounds played. From these, your average reaction time is calculated and shown on the start screen. The stats persist between sessions until you reset them.
 
-## Building
+## Installing
+Drag and drop the reaction_time.fap file into the 'apps/Games/' folder on your Flipper Zero.
+
+## Building it yourself
 Requires [ufbt](https://github.com/flipperdevices/flipperzero-ufbt).
 
     ufbt launch
