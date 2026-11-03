@@ -12,6 +12,7 @@
 #define MIN_DELAY_MS 1500
 #define MAX_DELAY_MS 5000
 #define STATS_PATH APP_DATA_PATH("stats.txt")
+#define NICE_MS 130
 
 typedef enum{
     ScreenStartup,
@@ -40,6 +41,18 @@ typedef struct{
 
 } ReactionApp;
 
+static const NotificationSequence sequence_nice = {
+    &message_green_255,
+    &message_note_c6,
+    &message_delay_100,
+    &message_note_e6,
+    &message_delay_100,
+    &message_note_g6,
+    &message_delay_100,
+    &message_sound_off,
+    &message_green_0,
+    NULL,   
+};
 
 static void load_stats(ReactionApp* app) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -85,7 +98,7 @@ static void draw_splash(Canvas* canvas, ReactionApp* app) {
     if (avg > 0){
         snprintf(buf, sizeof(buf), "Average: %lu ms", avg);
         //canvas_draw_str(canvas, 64, 32, buf);
-        canvas_draw_str_aligned(canvas, 64, 40, AlignCenter, AlignBottom, buf);
+        canvas_draw_str_aligned(canvas, 64, 38, AlignCenter, AlignBottom, buf);
     }
     //canvas_set_font(canvas, FontSecondary);
     elements_button_left(canvas, "Reset");
@@ -131,9 +144,9 @@ static void draw_reaction_ms(Canvas* canvas, ReactionApp* app){
     uint32_t reaction_time_ms = app->reaction_ms;
     
 
-    if (reaction_time_ms < 100){
+    if (reaction_time_ms < NICE_MS){
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(canvas, 64, 40, AlignCenter, AlignCenter, "Nice");
+        canvas_draw_str_aligned(canvas, 64, 45, AlignCenter, AlignCenter, "Nice!");
 
     }
 
@@ -141,7 +154,7 @@ static void draw_reaction_ms(Canvas* canvas, ReactionApp* app){
     canvas_draw_str_aligned(canvas, 64, 20, AlignCenter, AlignCenter, "Your reaction time was:");
     snprintf(buf, sizeof(buf), "%lu ms", reaction_time_ms);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, buf);
+    canvas_draw_str_aligned(canvas, 64, 30, AlignCenter, AlignTop, buf);
     elements_button_center(canvas, "Again");
     draw_back_icon(canvas, 2, 55);
     canvas_set_font(canvas, FontSecondary);
@@ -250,6 +263,7 @@ int32_t reaction_time_app(void* p) {
 
     InputEvent event;
     bool running = true;
+    uint8_t count = 0;
 
     while(running) {
         //wait btn for 10 ms max. returns FuriStatusOk if button
@@ -295,6 +309,12 @@ int32_t reaction_time_app(void* p) {
                         app->total_ms += app->reaction_ms;
                         app->count++;
                         save_stats(app);
+                        if (app->reaction_ms < NICE_MS){
+                            while (count <= 2){
+                                notification_message(app->notifications, &sequence_nice);
+                                count += 1;
+                            }   
+                        }
                         
                         app->screen = ScreenResult;
                         break;
@@ -302,13 +322,7 @@ int32_t reaction_time_app(void* p) {
                         start_waiting(app);
                         break;
                     case ScreenResult:
-                        if (app->reaction_ms < 100){
-                            while (count <= 2){
-                                notification_message(app->notifications, &sequence_audiovisual_alert);
-                                notification_message(app->notifications, &message_delay_500);
-                                count += 1;
-                            }   
-                        }
+
                         start_waiting(app);   //new cycle
                         break;
                     case ScreenAbout:
