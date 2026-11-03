@@ -19,6 +19,7 @@ typedef enum{
     ScreenGo,
     ScreenTooEarly,
     ScreenResult,
+    ScreenAbout,
 } Screen;
 
 
@@ -89,6 +90,7 @@ static void draw_splash(Canvas* canvas, ReactionApp* app) {
     //canvas_set_font(canvas, FontSecondary);
     elements_button_left(canvas, "Reset");
     elements_button_center(canvas, "Start");
+    elements_button_right(canvas, "About");
 }
 
 static void draw_wait(Canvas* canvas, ReactionApp* app){
@@ -109,6 +111,7 @@ static void draw_too_early(Canvas* canvas, ReactionApp* app){
     canvas_draw_str_aligned(canvas, 64, 20, AlignCenter, AlignCenter, "Failed...");
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(canvas, 64, 35, AlignCenter, AlignCenter, "You pressed too early");
+    elements_button_center(canvas, "Continue");
 }
 
 static void draw_back_icon(Canvas* canvas, int32_t x, int32_t y) {
@@ -126,6 +129,14 @@ static void draw_back_icon(Canvas* canvas, int32_t x, int32_t y) {
 static void draw_reaction_ms(Canvas* canvas, ReactionApp* app){
     char buf[40];
     uint32_t reaction_time_ms = app->reaction_ms;
+    
+
+    if (reaction_time_ms < 100){
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(canvas, 64, 40, AlignCenter, AlignCenter, "Nice");
+
+    }
+
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(canvas, 64, 20, AlignCenter, AlignCenter, "Your reaction time was:");
     snprintf(buf, sizeof(buf), "%lu ms", reaction_time_ms);
@@ -136,6 +147,12 @@ static void draw_reaction_ms(Canvas* canvas, ReactionApp* app){
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(canvas, 12, 63, AlignLeft, AlignBottom, "Menu");
     //canvas_draw_str(canvas, 64, 32, buf);
+}
+
+static void draw_about(Canvas* canvas, ReactionApp* app){
+    UNUSED(app);
+    canvas_set_font(canvas, FontSecondary);
+    //scrollcanvas
 }
 
 static void draw_callback(Canvas* canvas, void* ctx) {
@@ -165,7 +182,11 @@ static void draw_callback(Canvas* canvas, void* ctx) {
     case ScreenResult:
         draw_reaction_ms(canvas, app);
         break;
+    case ScreenAbout:
+        draw_about(canvas, app);
+        break;
     }
+    
 
     furi_mutex_release(app->mutex);  
 }
@@ -254,7 +275,13 @@ int32_t reaction_time_app(void* p) {
                 }
                 
 
-            } else if(event.key == InputKeyOk) {
+            } else if(event.key == InputKeyRight && app->screen == ScreenStartup){
+                app->screen = ScreenAbout;
+
+            } else if(event.key == InputKeyBack && app->screen == ScreenAbout){
+                app->screen = ScreenStartup;
+
+            }else if(event.key == InputKeyOk) {
                 //Ok button pressed: what happens
                 switch(app->screen){
                     case ScreenStartup:
@@ -268,13 +295,23 @@ int32_t reaction_time_app(void* p) {
                         app->total_ms += app->reaction_ms;
                         app->count++;
                         save_stats(app);
+                        
                         app->screen = ScreenResult;
                         break;
                     case ScreenTooEarly:
                         start_waiting(app);
                         break;
                     case ScreenResult:
+                        if (app->reaction_ms < 100){
+                            while (count <= 2){
+                                notification_message(app->notifications, &sequence_audiovisual_alert);
+                                notification_message(app->notifications, &message_delay_500);
+                                count += 1;
+                            }   
+                        }
                         start_waiting(app);   //new cycle
+                        break;
+                    case ScreenAbout:
                         break;
                 }
             }
