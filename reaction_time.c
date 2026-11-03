@@ -13,6 +13,7 @@
 #define MAX_DELAY_MS 5000
 #define STATS_PATH APP_DATA_PATH("stats.txt")
 #define NICE_MS 130
+#define VERSION "v1.0.0"
 
 typedef enum{
     ScreenStartup,
@@ -40,18 +41,36 @@ typedef struct{
     uint32_t count;
 
 } ReactionApp;
-
 static const NotificationSequence sequence_nice = {
+    &message_red_255,
     &message_green_255,
-    &message_note_c6,
-    &message_delay_100,
-    &message_note_e6,
-    &message_delay_100,
-    &message_note_g6,
-    &message_delay_100,
+
+    &message_note_g5, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_g5, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_g5, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_c6, &message_delay_250, &message_delay_100,
+    &message_sound_off, &message_delay_100,
+
+    &message_note_c6, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_c6, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_c6, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_e6, &message_delay_250, &message_delay_100,
+    &message_sound_off, &message_delay_100,
+
+    &message_note_c6, &message_delay_100,
+    &message_note_e6, &message_delay_100,
+    &message_note_g6, &message_delay_100,
+    &message_sound_off, &message_delay_25,
+    &message_note_g6, &message_delay_50, &message_sound_off, &message_delay_25,
+    &message_note_g6, &message_delay_50, &message_sound_off, &message_delay_25,
+
+    &message_note_c7, &message_delay_500, &message_delay_250,
     &message_sound_off,
+    &message_vibro_on, &message_delay_100,
+    &message_vibro_off,
+    &message_red_0,
     &message_green_0,
-    NULL,   
+    NULL,
 };
 
 static void load_stats(ReactionApp* app) {
@@ -164,7 +183,19 @@ static void draw_reaction_ms(Canvas* canvas, ReactionApp* app){
 
 static void draw_about(Canvas* canvas, ReactionApp* app){
     UNUSED(app);
+    char buf[40];
+    canvas_set_font(canvas, FontPrimary);
+    snprintf(buf, sizeof(buf),"Reaction Time %s", VERSION);
+    canvas_draw_str_aligned(canvas, 64, 1, AlignCenter, AlignTop, buf);
     canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(canvas, 64, 12, AlignCenter, AlignTop, "Developed by luvrltop");
+    canvas_draw_str_aligned(canvas, 64, 22, AlignCenter, AlignTop, "Github: luvrltop");
+    canvas_draw_str_aligned(canvas, 5, 32, AlignLeft, AlignTop, "Hint:");
+    canvas_draw_str_aligned(canvas, 64, 43, AlignCenter, AlignTop, "Try getting a score under");
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str_aligned(canvas, 64, 54, AlignCenter, AlignTop, "130ms!");
+
+
     //scrollcanvas
 }
 
@@ -263,7 +294,7 @@ int32_t reaction_time_app(void* p) {
 
     InputEvent event;
     bool running = true;
-    uint8_t count = 0;
+    
 
     while(running) {
         //wait btn for 10 ms max. returns FuriStatusOk if button
@@ -310,10 +341,7 @@ int32_t reaction_time_app(void* p) {
                         app->count++;
                         save_stats(app);
                         if (app->reaction_ms < NICE_MS){
-                            while (count <= 2){
-                                notification_message(app->notifications, &sequence_nice);
-                                count += 1;
-                            }   
+                            notification_message(app->notifications, &sequence_nice);
                         }
                         
                         app->screen = ScreenResult;
